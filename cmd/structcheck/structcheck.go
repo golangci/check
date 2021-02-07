@@ -78,6 +78,10 @@ func (v *visitor) typeAndFieldName(expr *ast.SelectorExpr) (types.Type, string, 
 	if ptr, ok := recv.(*types.Pointer); ok {
 		recv = ptr.Elem()
 	}
+	for _, idx := range selection.Index()[:len(selection.Index())-1] {
+		recv = recv.Underlying().(*types.Struct).Field(idx).Type()
+	}
+
 	return recv, selection.Obj().Name(), true
 }
 
