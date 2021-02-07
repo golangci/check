@@ -145,6 +145,7 @@ func (v *visitor) Visit(node ast.Node) ast.Visitor {
 }
 
 type Issue struct {
+	Posx      token.Pos
 	Pos       token.Position
 	Type      string
 	FieldName string
@@ -184,6 +185,7 @@ func Run(program *loader.Program, reportExported bool) []Issue {
 					}
 					pos := program.Fset.Position(field.Pos())
 					issues = append(issues, Issue{
+						Posx:      field.Pos(),
 						Pos:       pos,
 						Type:      types.TypeString(t, nil),
 						FieldName: fieldName,
