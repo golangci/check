@@ -78,6 +78,10 @@ func (v *visitor) typeAndFieldName(expr *ast.SelectorExpr) (types.Type, string, 
 	if ptr, ok := recv.(*types.Pointer); ok {
 		recv = ptr.Elem()
 	}
+	for _, idx := range selection.Index()[:len(selection.Index())-1] {
+		recv = recv.Underlying().(*types.Struct).Field(idx).Type()
+	}
+
 	return recv, selection.Obj().Name(), true
 }
 
@@ -141,6 +145,7 @@ func (v *visitor) Visit(node ast.Node) ast.Visitor {
 }
 
 type Issue struct {
+	Posx      token.Pos
 	Pos       token.Position
 	Type      string
 	FieldName string
@@ -180,6 +185,7 @@ func Run(program *loader.Program, reportExported bool) []Issue {
 					}
 					pos := program.Fset.Position(field.Pos())
 					issues = append(issues, Issue{
+						Posx:      field.Pos(),
 						Pos:       pos,
 						Type:      types.TypeString(t, nil),
 						FieldName: fieldName,
